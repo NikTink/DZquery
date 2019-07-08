@@ -1,4 +1,4 @@
 pip install -r requirements.txt
 
-pyinstaller --onefile --noconsole getData.py
+pyinstaller --onefile getData.py
 PAUSE
