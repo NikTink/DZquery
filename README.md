@@ -1,5 +1,9 @@
 # DZquery
-a simple query tool with a dank HUD for the game DayZ
+a simple query tool with a dank HUD for the game DayZ.
+
+The tool sniffs your port 2304 for outgoing traffic. When it finds the destination address, the tool contacts api.steampowered.com to find out the query port for that server. After the query port is found, the tool begins to (by default) query the server every minute for player- and time-data and displays it on the screen. 
+
+This was more of a proof of concept idea/project. feel free to improve on it (please!!)
 
 Usage:
 
