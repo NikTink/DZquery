@@ -19,7 +19,7 @@ Notes:
 
 -Currently only optimized for 1920x1080p displays (feel free to edit the values in the config to make it fit your display though)
 -The loading of all necessary libraries takes a while. Read the console prompt
--Does not work when the game is in fullscreen-mode. Use borderless windowed. I will not start messing with Direct3d drivers and memory
+-The HUD does not work when the game is in fullscreen-mode. Use borderless windowed. I will not start messing with Direct3d drivers and memory
 
 config:
 
