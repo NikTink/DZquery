@@ -1,5 +1,5 @@
 print("loading...")
-import getGameServer, getInfo, getIpPort, time, socket, sys, json, tkinter, win32api, win32con, pywintypes, threading, os
+import getInfo, getIpPort, time, socket, sys, json, tkinter, win32api, win32con, pywintypes, threading, os
 from ctypes import *
 
 
@@ -50,42 +50,57 @@ def get_ip():
 	finally:
 		s.close()
 	return IP
-sys.stdout.write("waiting for server connection...	 ")
-sys.stdout.flush()
-localip= str(get_ip())
-IPPORT=[localip,2304]
-IPPORTref=[localip,2304]
-
-while IPPORT==IPPORTref:
-	IPPORT=getGameServer.getServerIp()
-
-sys.stdout.write("Server found at {} \n".format(IPPORT))
-sys.stdout.flush()
-QUERYIPPORT=None
-retryTime=60
-while QUERYIPPORT==None:
-	
-	QUERYIPPORT=getIpPort.getIpPort(IPPORT)
-	if QUERYIPPORT==None:
-		print_at(3,0,"failed to get query-port... retrying in {} seconds".format(str(retryTime)))
-		for sec in range(1,retryTime):
-			time.sleep(1)
-			print_at(3,28,"retrying in {} seconds ".format(retryTime-sec))
-print("Queryport {} found... beginning scans".format(QUERYIPPORT[1]))
 global i
-i=0
 
 def refreshStats(label):
+	print("loading...")
+	label.config(text="loading...")
+	import getGameServer
+	sys.stdout.write("waiting for server connection...	 ")
+	sys.stdout.flush()
+	localip= str(get_ip())
+	IPPORT=[localip,2304]
+	IPPORTref=[localip,2304]
+	'''
+	#for testing!
+	IPPORT=["64.95.100.142",2402]
+	'''
+	while IPPORT==IPPORTref:
+		IPPORT=getGameServer.getServerIp()
+
+
+
+	sys.stdout.write("Server found at {} \n".format(IPPORT))
+	sys.stdout.flush()
+	QUERYIPPORT=None
+	retryTime=60
+	while QUERYIPPORT==None:
+		
+		QUERYIPPORT=getIpPort.getIpPort(IPPORT)
+		if QUERYIPPORT==None:
+			print_at(3,0,"failed to get query-port... retrying in {} seconds".format(str(retryTime)))
+			for sec in range(1,retryTime):
+				time.sleep(1)
+				print_at(3,28,"retrying in {} seconds ".format(retryTime-sec))
+	print("Queryport {} found... beginning scans".format(QUERYIPPORT[1]))
+	
+	i=0
 	while True:
 		if QUERYIPPORT!=None:
 			with open('config.json') as json_file:
 				data = json.load(json_file)
 			
-			global i
 			i+=1
 			info=getInfo.GetInfo(QUERYIPPORT)
-			print_at(6,0,"Players: {}/{} \nTime:	{}\n {}".format(info["Players"], info["MaxPlayers"], (info["Tags"].split(","))[-1], i))
-			label.config(text="Players: {}/{} \n  Time:	 {}".format(info["Players"], info["MaxPlayers"], (info["Tags"].split(","))[-1]))
+			try:
+				label.config(fg=data["config"]["TextColour"])
+				print_at(6,0,"Players: {}/{} \nTime:	{}\n {}".format(info["Players"], info["MaxPlayers"], (info["Tags"].split(","))[-1], i))
+				label.config(text="Players: {}/{} \n  Time:	 {}".format(info["Players"], info["MaxPlayers"], (info["Tags"].split(","))[-1]))
+				
+			except:
+				print_at(6,0,"Error...")
+				label.config(fg="red")
+				
 		else:
 			print("query port not found")
 		time.sleep(data["config"]["updateRate"])
