@@ -31,3 +31,4 @@ config:
     "BGColour": Colour of the background. Doesnt really change much, but bleeds a bit, so black is the best to use for most "TextColour" options
     
     
+If the server is not reached during runtime, the HUD will turn red. As soon as the server can be reached again, it will return to your configured colour (default: green)
