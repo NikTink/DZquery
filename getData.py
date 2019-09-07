@@ -1,22 +1,24 @@
 print("loading...")
-import getInfo, getIpPort, time, socket, sys, json, tkinter, win32api, win32con, pywintypes, threading, os
+import getInfo, getIpPort, time, socket, sys, json, tkinter, win32api, win32con, pywintypes, threading, os, watchdogLocal, keybindsLocal
 from ctypes import *
 
 
-data={
+config={
   "config": {
 	"updateRate": 60,
 	"PfromTop": "1000",
-	"PfromSide": "1760",
+	"PfromSide": "1720",
 	"TextColour": "green",
 	"BGColour": "black"
   }
 }
-exists = os.path.isfile('config.json')
+exists = os.path.isfile('./config/config.json')
+if not os.path.exists("./config/"):
+    os.makedirs("./config/")
 if exists==False:
 	print("config.json missing... creating")
-	with open('config.json', 'w') as outfile:
-		json.dump(data, outfile)
+	with open('./config/config.json', 'w') as outfile:
+		json.dump(config, outfile)
 
 
 
@@ -45,8 +47,8 @@ def get_ip():
 		IP = s.getsockname()[0]
 	except:
 		IP = '127.0.0.1'
-		#should never end up here!!
-		print("OOPS! SOMETHING WENT WRONG!")
+		#no internet connection
+		print("OOPS! It looks like you dont have internet connection")
 	finally:
 		s.close()
 	return IP
@@ -57,6 +59,7 @@ def refreshStats(label):
 	label.config(text="loading...")
 	import getGameServer
 	sys.stdout.write("waiting for server connection...	 ")
+	label.config(text="waiting connection...")
 	sys.stdout.flush()
 	localip= str(get_ip())
 	IPPORT=[localip,2304]
@@ -87,13 +90,13 @@ def refreshStats(label):
 	i=0
 	while True:
 		if QUERYIPPORT!=None:
-			with open('config.json') as json_file:
-				data = json.load(json_file)
+			with open('./config/config.json') as json_file:
+				config = json.load(json_file)
 			
 			i+=1
 			info=getInfo.GetInfo(QUERYIPPORT)
 			try:
-				label.config(fg=data["config"]["TextColour"])
+				label.config(fg=config["config"]["TextColour"])
 				print_at(6,0,"Players: {}/{} \nTime:	{}\n {}".format(info["Players"], info["MaxPlayers"], (info["Tags"].split(","))[-1], i))
 				label.config(text="Players: {}/{} \n  Time:	 {}".format(info["Players"], info["MaxPlayers"], (info["Tags"].split(","))[-1]))
 				
@@ -103,23 +106,28 @@ def refreshStats(label):
 				
 		else:
 			print("query port not found")
-		time.sleep(data["config"]["updateRate"])
+		time.sleep(config["config"]["updateRate"])
 def refStarter(label):
 	t=threading.Thread(target=refreshStats, args=(label,))
 	t.start()
 
-label = tkinter.Label(text='Loading...', font=('verdana ','16'), fg=data["config"]["TextColour"], bg=data["config"]["BGColour"])
+label = tkinter.Label(text='Loading...', font=('verdana ','16'), fg=config["config"]["TextColour"], bg=config["config"]["BGColour"])
 label.master.overrideredirect(True)
-with open('config.json') as json_file:
-				data = json.load(json_file)
-label.master.geometry("+"+data["config"]["PfromSide"]+"+"+data["config"]["PfromTop"])
+with open('./config/config.json') as json_file:
+				config = json.load(json_file)
+label.master.geometry("+"+config["config"]["PfromSide"]+"+"+config["config"]["PfromTop"])
 label.master.lift()
 label.master.wm_attributes("-topmost", True)
 label.master.wm_attributes("-disabled", True)
-label.master.wm_attributes("-transparentcolor", data["config"]["BGColour"])
+label.master.wm_attributes("-transparentcolor", config["config"]["BGColour"])
 label.after(1 ,refStarter(label))
 hWindow = pywintypes.HANDLE(int(label.master.frame(), 16))
 exStyle = win32con.WS_EX_COMPOSITED | win32con.WS_EX_LAYERED | win32con.WS_EX_NOACTIVATE | win32con.WS_EX_TOPMOST | win32con.WS_EX_TRANSPARENT
 win32api.SetWindowLong(hWindow, win32con.GWL_EXSTYLE, exStyle)
+t = threading.Thread(target=watchdogLocal.start, args=(label,))
+t.start()
+t2 = threading.Thread(target=keybindsLocal.start, args=(label,))
+t2.start()
+
 label.pack()
 label.mainloop()
