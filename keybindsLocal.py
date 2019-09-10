@@ -1,15 +1,17 @@
 from pynput.keyboard import Key, KeyCode, Listener
 import json
-controlKey=Key.shift
-charKeyUp='i'
-charKeyDown='k'
-charKeyLeft='j'
-charKeyRight='l'
+controlKey=Key.ctrl_l
+shiftKey=Key.shift
+charKeyUp=Key.up
+charKeyDown=Key.down
+charKeyLeft=Key.left
+charKeyRight=Key.right
 
-
-# Your functions
+standardMoveAmmount=1
+fastMoveAmmount=30
 
 def start(label):
+	Boost=False
 	
 	def load():
 		with open('./config/config.json') as json_file:
@@ -29,30 +31,47 @@ def start(label):
 	def save():
 		pass
 	def function_1():
-		move("updown",0-1)
-	def function_2():
-		move("updown",1)
-	def function_3():
-		move("leftright",0-1)
-	def function_4():
-		move("leftright",1)
 
-	# Create a mapping of keys to function (use frozenset as sets are not hashable - so they can't be used as keys)
+		move("updown",0-standardMoveAmmount)
+	def function_2():
+
+		move("updown",standardMoveAmmount)
+	def function_3():
+
+		move("leftright",0-standardMoveAmmount)
+	def function_4():
+
+		move("leftright",standardMoveAmmount)
+
+	def function_1_1():
+		move("updown",0-fastMoveAmmount)
+	def function_2_1():
+
+		move("updown",fastMoveAmmount)
+	def function_3_1():
+
+		move("leftright",0-fastMoveAmmount)
+	def function_4_1():
+
+		move("leftright",fastMoveAmmount)
+
 	combination_to_function = {
-		frozenset([Key.shift , Key.up]): function_1, # No `()` after function_1 because we want to pass the function, not the value of the function
-		frozenset([Key.shift , Key.down]): function_2,
-		frozenset([Key.shift , Key.left]): function_3,
-		frozenset([Key.shift , Key.right]): function_4,
+		frozenset([shiftKey , charKeyUp]): function_1,
+		frozenset([shiftKey , charKeyDown]): function_2,
+		frozenset([shiftKey , charKeyLeft]): function_3,
+		frozenset([shiftKey , charKeyRight]): function_4,
+		frozenset([controlKey, Key.shift , charKeyUp]): function_1_1,
+		frozenset([controlKey, Key.shift , charKeyDown]): function_2_1,
+		frozenset([controlKey, Key.shift , charKeyLeft]): function_3_1,
+		frozenset([controlKey, Key.shift , charKeyRight]): function_4_1,
 	}
 
-	# Currently pressed keys
 	current_keys = set()
 
 	def on_press(key):
-		# When a key is pressed, add it to the set we are keeping track of and check if this set is in the dictionary
+		
 		current_keys.add(key)
 		if frozenset(current_keys) in combination_to_function:
-			# If the current set of keys are in the mapping, execute the function
 			combination_to_function[frozenset(current_keys)]()
 
 	def on_release(key):
@@ -60,8 +79,10 @@ def start(label):
 		if frozenset(current_keys) in combination_to_function:
 			save()
 		'''
-		# When a key is released, remove it from the set of keys we are keeping track of
-		current_keys.remove(key)
+		try:
+			current_keys.remove(key)
+		except Exception as e:
+			print("[WARN] {}".format(e))
 
 	with Listener(on_press=on_press, on_release=on_release) as listener:
 		listener.join()
