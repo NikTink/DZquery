@@ -1,14 +1,17 @@
 from pynput.keyboard import Key, KeyCode, Listener
-import json
+import json, os
+#from threading import thread
 controlKey=Key.ctrl_l
 shiftKey=Key.shift
 charKeyUp=Key.up
 charKeyDown=Key.down
 charKeyLeft=Key.left
 charKeyRight=Key.right
+charKeyStop="c"
 
 standardMoveAmmount=1
 fastMoveAmmount=30
+
 
 def start(label):
 	Boost=False
@@ -54,6 +57,9 @@ def start(label):
 	def function_4_1():
 
 		move("leftright",fastMoveAmmount)
+	def function_5():
+		print("called")
+		os._exit(0)
 
 	combination_to_function = {
 		frozenset([shiftKey , charKeyUp]): function_1,
@@ -64,6 +70,7 @@ def start(label):
 		frozenset([controlKey, Key.shift , charKeyDown]): function_2_1,
 		frozenset([controlKey, Key.shift , charKeyLeft]): function_3_1,
 		frozenset([controlKey, Key.shift , charKeyRight]): function_4_1,
+		frozenset([controlKey, KeyCode(char=charKeyStop)]): function_5,
 	}
 
 	current_keys = set()
