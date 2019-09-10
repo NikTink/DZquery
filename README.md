@@ -10,6 +10,7 @@ Usage:
     run the compiled .exe and join a server.
     
     to change the overlay position: hold shift and one of the arrowkeys. This is saved across restarts in the config file. Optionally you can change the location manually in the config file. All changes done to the config file will update in real time to the HUD-element
+    Kill the program at any time by pressing ctrl+c
 
 Compiling:
 
