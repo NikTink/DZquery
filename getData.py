@@ -14,7 +14,7 @@ config={
 }
 exists = os.path.isfile('./config/config.json')
 if not os.path.exists("./config/"):
-    os.makedirs("./config/")
+	os.makedirs("./config/")
 if exists==False:
 	print("config.json missing... creating")
 	with open('./config/config.json', 'w') as outfile:
@@ -70,6 +70,8 @@ def refreshStats(label):
 	'''
 	while IPPORT==IPPORTref:
 		IPPORT=getGameServer.getServerIp()
+		if IPPORT == ["false",0000]:
+			exit()
 
 
 
